@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyAppBar(title: Text("Assignment")));
+}
+
+class MyAppBar extends StatelessWidget {
+  const MyAppBar({required this.title, super.key});
+
+  final Widget title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        children: [
+          const IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: null,
+          )
+        ],
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -21,9 +41,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
 
   final String title;
 
@@ -45,7 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         title: Text(widget.title),
       ),
       body: Center(
