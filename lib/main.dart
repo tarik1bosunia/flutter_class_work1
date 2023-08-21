@@ -1,217 +1,142 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(CalculatorApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class CalculatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: "Namer App",
-        theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green)),
-        home: MyHomePage(),
-      ),
+    return MaterialApp(
+      title: 'Calculator',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: CalculatorScreen(),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+class CalculatorScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _CalculatorScreenState createState() => _CalculatorScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+class _CalculatorScreenState extends State<CalculatorScreen> {
+  String _output = "0";
+  double _num1 = 0;
+  double _num2 = 0;
+  String _operator = "";
+
+  void _handleButtonClick(String value) {
+    setState(() {
+      if (value == "C") {
+        _output = "0";
+        _num1 = 0;
+        _num2 = 0;
+        _operator = "";
+      } else if (value == "+" || value == "-" || value == "x" || value == "/") {
+        _num1 = double.parse(_output);
+        _operator = value;
+        _output = "0";
+      } else if (value == "=") {
+        _num2 = double.parse(_output);
+        if (_operator == "+") {
+          _output = (_num1 + _num2).toString();
+        } else if (_operator == "-") {
+          _output = (_num1 - _num2).toString();
+        } else if (_operator == "x") {
+          _output = (_num1 * _num2).toString();
+        } else if (_operator == "/") {
+          if (_num2 != 0) {
+            _output = (_num1 / _num2).toString();
+          } else {
+            _output = "Error";
+          }
+        }
+        _operator = "";
+        _num1 = 0;
+        _num2 = 0;
+      } else {
+        if (_output == "0") {
+          _output = value;
+        } else {
+          _output += value;
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch(selectedIndex){
-      case 0:
-        page = GeneratorPage();
-        break;
-
-      case 1:
-        page = FavoritesPage();
-        break;
-
-      default:
-        throw UnimplementedError("No widget for $selectedIndex");
-    }
-
-
-    return LayoutBuilder(
-      builder: (context, constrains) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constrains.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text("Home"),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text("Favorite"),
-                    )
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                    });
-                    print("selected $selectedIndex");
-                  },
-                ),
+    return Scaffold(
+      appBar: AppBar(title: Text("Calculator")),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              alignment: Alignment.bottomRight,
+              child: Text(
+                _output,
+                style: TextStyle(fontSize: 48.0, fontWeight: FontWeight.bold),
               ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
-              )
+            ),
+          ),
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildButton("7"),
+              _buildButton("8"),
+              _buildButton("9"),
+              _buildButton("/"),
             ],
           ),
-        );
-      }
-    );
-  }
-}
-
-class GeneratorPage extends StatelessWidget {
-  const GeneratorPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return  Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(
-            height: 10,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildButton("4"),
+              _buildButton("5"),
+              _buildButton("6"),
+              _buildButton("x"),
+            ],
           ),
           Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildButton("1"),
+              _buildButton("2"),
+              _buildButton("3"),
+              _buildButton("-"),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildButton("C"),
+              _buildButton("0"),
+              _buildButton("="),
+              _buildButton("+"),
             ],
           ),
         ],
       ),
     );
   }
-}
 
-
-class BigCard extends StatelessWidget {
-  const BigCard({super.key, required this.pair});
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
+  Widget _buildButton(String label) {
+    return Container(
+      margin: EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () => _handleButtonClick(label),
         child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
+          label,
+          style: TextStyle(fontSize: 24.0),
+        ),
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(20.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
         ),
       ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
     );
   }
 }
